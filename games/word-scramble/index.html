@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Word Scramble - GameHub</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+	<link href="../shared.css" rel="stylesheet">
+	<link href="style.css" rel="stylesheet">
+</head>
+<body class="game-bg">
+	<div class="game-container">
+		<div class="game-header">
+			<h1 class="game-title">Word Scramble</h1>
+			<p class="game-subtitle">Unscramble the letters before the time runs out!</p>
+		</div>
+
+		<div class="xp-container mb-4">
+			<div class="d-flex justify-content-between mb-2">
+				<small>Level <span id="level">1</span></small>
+				<small><span id="currentXp">0</span>/<span id="nextLevelXp">100</span> XP</small>
+			</div>
+			<div class="xp-bar">
+				<div class="xp-progress" id="xpProgress"></div>
+				<div class="xp-text" id="xpText">0%</div>
+			</div>
+		</div>
+
+		<div class="game-info glass-card p-3 mb-4">
+			<div class="row text-center">
+				<div class="col-4">
+					<div class="stat-value" id="score">0</div>
+					<div class="stat-label">Score</div>
+				</div>
+				<div class="col-4">
+					<div class="stat-value" id="timer">60</div>
+					<div class="stat-label">Seconds</div>
+				</div>
+				<div class="col-4">
+					<div class="stat-value"><span id="correct">0</span>/<span id="incorrect">0</span></div>
+					<div class="stat-label">Correct / Wrong</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="game-area glass-card p-4 mb-4">
+			<div class="scrambled-word mb-4" id="scrambled-word">Loading...</div>
+			<div class="hint mb-3">
+				<i class="bi bi-lightbulb-fill text-warning me-2"></i>
+				<span id="hint"></span>
+			</div>
+			<div class="input-group input-group-lg mb-3">
+				<input type="text" id="guess" class="form-control form-control-lg text-center" placeholder="Enter your guess" autocomplete="off">
+				<button class="btn btn-primary" id="submit" type="button">
+					<i class="bi bi-send-fill me-1"></i> Submit
+				</button>
+			</div>
+			<div class="message text-center" id="message"></div>
+		</div>
+
+		<div class="d-grid gap-2">
+			<button id="restart" class="btn btn-outline-light">
+				<i class="bi bi-arrow-repeat me-2"></i> New Word
+			</button>
+		</div>
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="../game-service.js"></script>
+	<script src="game.js"></script>
+</body>
+</html>
