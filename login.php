@@ -64,17 +64,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body style="background-image: url('assets/images/login-bg.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; min-height: 100vh;">
+<body style="background-image: url('assets/images/login-bg.jpg'); background-size: cover; background-position: center; background-attachment: fixed; min-height: 100vh; margin: 0; padding: 0;">
     <div class="container">
-        <!-- Overlay for better readability -->
-        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: -1;"></div>
+        <!-- Semi-transparent overlay -->
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: -1;"></div>
+        
         <div class="row justify-content-center align-items-center min-vh-100">
             <div class="col-md-6 col-lg-5">
-                <div class="card shadow-lg">
-                    <div class="card-body p-5">
+                <div class="card">
+                    <div class="card-body p-4 p-md-5">
                         <div class="text-center mb-4">
                             <h2 class="text-gradient mb-3">Welcome Back!</h2>
-                            <p class="text-muted">Sign in to continue to GameHub</p>
+                            <p class="text-muted mb-4">Sign in to continue to GameHub</p>
                         </div>
                         
                         <?php if ($error): ?>

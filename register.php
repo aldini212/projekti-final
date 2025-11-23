@@ -71,6 +71,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['confirm_password'] = 'Passwords do not match';
     }
     
+    // Validate house selection
+    $house = trim($_POST['house'] ?? '');
+    $valid_houses = ['Hipsters', 'Speeders', 'Engineers', 'Shadows'];
+    if (empty($house) || !in_array($house, $valid_houses)) {
+        $errors['house'] = 'Please select a valid house';
+    }
+    
     // Validate terms acceptance
     if (!$terms) {
         $errors['terms'] = 'You must accept the terms and conditions';
@@ -93,13 +100,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Start transaction
             query("START TRANSACTION");
-            // Start transaction
-            query("START TRANSACTION");
             
-            // Insert user
+            // Insert new user with house
             query(
-                "INSERT INTO users (username, email, password, avatar, verification_token, created_at) VALUES (?, ?, ?, ?, ?, NOW())",
-                [$username, $email, $hashed_password, $avatar, $verification_token]
+                "INSERT INTO users (username, email, password, verification_token, house) VALUES (?, ?, ?, ?, ?)",
+                [$username, $email, $hashed_password, $verification_token, $house]
             );
             
             $userId = lastInsertId();
@@ -286,14 +291,214 @@ if (session_status() === PHP_SESSION_NONE) {
         .social-btn i {
             margin-right: 0.5rem;
         }
+        
+        /* Dark theme styles */
+        body {
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        /* Make all text white */
+        h1, h2, h3, h4, h5, h6, p, label, .form-label, .form-text, .text-muted {
+            color: #ffffff !important;
+        }
+        
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            background-color: #1a1a2e;
+            border: none;
+        }
+        
+        .form-control, .form-select {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: #6c5ce7;
+            color: #fff;
+            box-shadow: 0 0 0 0.25rem rgba(108, 92, 231, 0.25);
+        }
+        
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .btn-primary {
+            background-color: #6c5ce7;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #5a4bc9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+        }
+        
+        .text-muted {
+            color: rgba(255, 255, 255, 0.6) !important;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .divider span {
+            padding: 0 1rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+        
+        /* Make form controls dark theme compatible */
+        .input-group-text {
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .form-check-input {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .form-check-input:checked {
+            background-color: #6c5ce7;
+            border-color: #6c5ce7;
+        }
+        
+        .form-check-label {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* Links */
+        a {
+            color: #8c7ae6;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        
+        a:hover {
+            color: #6c5ce7;
+            text-decoration: underline;
+        }
+        
+        /* House Selection Styles */
+        .house-option {
+            height: 100%;
+            padding: 1.25rem 0.5rem;
+            border-radius: 12px !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(255, 255, 255, 0.1) !important;
+            background-color: #1a1a2e !important;
+            color: #e6e6e6 !important;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-check:checked + .house-option {
+            border-color: #6c5ce7 !important;
+            background: linear-gradient(145deg, #1a1a2e, #16213e) !important;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), 0 0 0 2px rgba(108, 92, 231, 0.4) !important;
+        }
+        
+        /* Add a subtle glow effect on hover */
+        .house-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 8px;
+            padding: 2px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        
+        .btn-check:checked + .btn-outline-primary {
+            border-color: #6c5ce7 !important;
+            color: #6c5ce7 !important;
+        }
+        
+        .btn-check:checked + .btn-outline-danger {
+            border-color: #dc3545 !important;
+            color: #dc3545 !important;
+        }
+        
+        .btn-check:checked + .btn-outline-warning {
+            border-color: #ffc107 !important;
+            color: #ffc107 !important;
+        }
+        
+        .btn-check:checked + .btn-outline-info {
+            border-color: #0dcaf0 !important;
+            color: #0dcaf0 !important;
+        }
+        
+        .house-option:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+        
+        .house-option img {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            margin-bottom: 0.75rem;
+        }
+        
+        .btn-check:checked + .house-option img {
+            transform: scale(1.15) rotate(5deg);
+            filter: drop-shadow(0 4px 8px rgba(108, 92, 231, 0.4));
+        }
+        
+        /* House name styling */
+        .house-option span {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            font-size: 0.95rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-check:checked + .house-option span {
+            color: #fff !important;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Overlay for better readability -->
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: -1;"></div>
+    
+    <div class="container">
         <div class="row justify-content-center align-items-center min-vh-100 py-5">
             <div class="col-md-8 col-lg-6 col-xl-5">
                 <div class="card">
-                    <div class="card-body p-4">
+                    <div class="card-body p-4 p-md-5">
                         <div class="text-center mb-4">
                             <h2 class="mb-2 fw-bold" style="color: #6c5ce7;">Join GameHub</h2>
                             <p class="text-muted">Create your account to start playing</p>
@@ -389,6 +594,50 @@ if (session_status() === PHP_SESSION_NONE) {
                                     </div>
                                 </div>
 
+                                <!-- House Selection -->
+                                <div class="mb-4">
+                                    <label class="form-label d-block">Choose Your House <span class="text-danger">*</span></label>
+                                    <div class="row g-3">
+                                        <div class="col-6 col-md-3">
+                                            <input type="radio" class="btn-check" name="house" id="hipsters" value="Hipsters" required 
+                                                <?php echo ($_POST['house'] ?? '') === 'Hipsters' ? 'checked' : ''; ?>>
+                                            <label class="w-100 btn d-flex flex-column align-items-center house-option" for="hipsters" style="border: none;">
+                                                <img src="/GamingHub/projekti-final-1/assets/images/houses/hipsters.png" alt="Hipsters" class="img-fluid" style="width: 60px; height: 60px; object-fit: contain;">
+                                                <span class="mt-1">Hipsters</span>
+                                            </label>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <input type="radio" class="btn-check" name="house" id="speeders" value="Speeders" 
+                                                <?php echo ($_POST['house'] ?? '') === 'Speeders' ? 'checked' : ''; ?>>
+                                            <label class="w-100 btn d-flex flex-column align-items-center house-option" for="speeders" style="border: none;">
+                                                <img src="/GamingHub/projekti-final-1/assets/images/houses/speeders.png" alt="Speeders" class="img-fluid" style="width: 60px; height: 60px; object-fit: contain;">
+                                                <span class="mt-1">Speeders</span>
+                                            </label>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <input type="radio" class="btn-check" name="house" id="engineers" value="Engineers" 
+                                                <?php echo ($_POST['house'] ?? '') === 'Engineers' ? 'checked' : ''; ?>>
+                                            <label class="w-100 btn d-flex flex-column align-items-center house-option" for="engineers" style="border: none;">
+                                                <img src="/GamingHub/projekti-final-1/assets/images/houses/engineers.png" alt="Engineers" class="img-fluid" style="width: 60px; height: 60px; object-fit: contain;">
+                                                <span class="mt-1">Engineers</span>
+                                            </label>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <input type="radio" class="btn-check" name="house" id="shadows" value="Shadows" 
+                                                <?php echo ($_POST['house'] ?? '') === 'Shadows' ? 'checked' : ''; ?>>
+                                            <label class="w-100 btn d-flex flex-column align-items-center house-option" for="shadows" style="border: none;">
+                                                <img src="/GamingHub/projekti-final-1/assets/images/houses/shadows.png" alt="Shadows" class="img-fluid" style="width: 60px; height: 60px; object-fit: contain;">
+                                                <span class="mt-1">Shadows</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <?php if (isset($errors['house'])): ?>
+                                        <div class="invalid-feedback d-block">
+                                            <?php echo $errors['house']; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+
                                 <div class="form-check mb-4">
                                     <input class="form-check-input <?php echo isset($errors['terms']) ? 'is-invalid' : ''; ?>" 
                                            type="checkbox" id="terms" name="terms" required 
@@ -412,7 +661,7 @@ if (session_status() === PHP_SESSION_NONE) {
                             </form>
                              
                             <div class="divider my-4">
-                                <span class="px-2">OR</span>
+                                <span>OR</span>
                             </div>
                              
                             <div class="text-center">

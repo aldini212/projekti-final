@@ -120,20 +120,51 @@ try {
             <!-- Left Sidebar -->
             <div class="col-lg-3">
                 <div class="card shadow-sm h-100">
-                    <div class="card-body text-center p-4">
-                        <div class="position-relative d-inline-block mb-3">
-                            <img 
-                                loading="lazy"
-                                src="<?= htmlspecialchars($user['avatar'] ?? 'assets/images/default-avatar.png') ?>" 
-                                alt="Profile Picture" 
-                                class="rounded-circle img-thumbnail border-4 border-primary" 
-                                style="width: 150px; height: 150px; object-fit: cover;"
-                                onerror="this.src='assets/images/default-avatar.png'"
-                                decoding="async"
-                            >
-                            <span class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-2 border border-3 border-white">
-                                <i class="bi bi-trophy"></i> <?= $level ?>
-                            </span>
+                    <div class="card-body p-4">
+                        <!-- User Profile Header -->
+                        <div class="text-center mb-4">
+                            <?php if (!empty($user['house'])): 
+                                $house = strtolower($user['house']);
+                                $imgPath = "/GamingHub/projekti-final-1/assets/images/houses/{$house}.png";
+                                $houseDescriptions = [
+                                    'Hipster' => 'Creativity & Style',
+                                    'Speedster' => 'Speed & Agility',
+                                    'Shadow' => 'Stealth & Strategy',
+                                    'Beginner' => 'Potential & Growth'
+                                ];
+                                $description = $houseDescriptions[$user['house']] ?? 'Member';
+                            ?>
+                                <div class="position-relative d-inline-block mb-3">
+                                    <img src="<?php echo $imgPath; ?>" 
+                                         alt="<?php echo htmlspecialchars($user['house']); ?>" 
+                                         class="img-thumbnail rounded-circle border-3"
+                                         style="width: 120px; height: 120px; object-fit: cover;">
+                                    <span class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-2 border border-3 border-white">
+                                        <i class="bi bi-trophy"></i> <?= $level ?>
+                                    </span>
+                                </div>
+                                <h4 class="mb-1"><?= htmlspecialchars($user['username']) ?></h4>
+                                <span class="badge bg-primary mb-3"><?= htmlspecialchars($user['house']) ?> House</span>
+                                <p class="text-muted small mb-3"><?= $description ?></p>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <!-- User Stats -->
+                        <div class="border-top border-bottom py-3 mb-4">
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <div class="h5 mb-1"><?= number_format($points) ?></div>
+                                    <div class="text-muted small">XP</div>
+                                </div>
+                                <div class="col-4 border-start border-end">
+                                    <div class="h5 mb-1"><?= $totalGamesPlayed = count($recentScores) + count($topScores) > 0 ? count($recentScores) + count($topScores) : 0 ?></div>
+                                    <div class="text-muted small">Games</div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="h5 mb-1"><?= $user['level'] ?? 1 ?></div>
+                                    <div class="text-muted small">Level</div>
+                                </div>
+                            </div>
                         </div>
                         
                         <h3 class="h4 mb-1"><?= htmlspecialchars($user['username']) ?></h3>
@@ -180,6 +211,79 @@ try {
             
             <!-- Main Content -->
             <div class="col-lg-9">
+                <!-- Recent Games Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Recent Games</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <?php
+                        // Get user's recent games with scores
+                        $recentGames = fetchAll("
+                            SELECT g.id, g.name, g.slug, g.thumbnail, 
+                                   MAX(s.score) as high_score, 
+                                   COUNT(s.id) as games_played,
+                                   MAX(s.created_at) as last_played
+                            FROM games g
+                            LEFT JOIN scores s ON g.id = s.game_id
+                            WHERE s.user_id = ?
+                            GROUP BY g.id
+                            ORDER BY last_played DESC
+                            LIMIT 6
+                        ", [$userId]);
+                        
+                        if (!empty($recentGames)): ?>
+                            <div class="row g-3 p-3">
+                                <?php foreach ($recentGames as $game): ?>
+                                    <div class="col-md-4 col-6">
+                                        <a href="game.php?slug=<?= htmlspecialchars($game['slug']) ?>" class="text-decoration-none text-dark">
+                                            <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+                                                <div class="position-relative">
+                                                    <img src="<?= htmlspecialchars($game['thumbnail'] ?? 'assets/images/game-placeholder.jpg') ?>" 
+                                                         class="card-img-top" 
+                                                         alt="<?= htmlspecialchars($game['name']) ?>"
+                                                         style="height: 120px; object-fit: cover;">
+                                                    <div class="position-absolute top-0 end-0 m-2">
+                                                        <span class="badge bg-primary">
+                                                            <i class="bi bi-trophy-fill me-1"></i> 
+                                                            <?= number_format($game['high_score']) ?>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body p-3">
+                                                    <h6 class="card-title mb-1 text-truncate"><?= htmlspecialchars($game['name']) ?></h6>
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <small class="text-muted">
+                                                            <i class="bi bi-controller me-1"></i> 
+                                                            <?= $game['games_played'] ?> play<?= $game['games_played'] != 1 ? 's' : '' ?>
+                                                        </small>
+                                                        <small class="text-muted">
+                                                            <?= time_elapsed_string($game['last_played']) ?>
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <div class="text-center pb-3">
+                                <a href="games.php?filter=played" class="btn btn-outline-primary btn-sm">
+                                    View All Games
+                                </a>
+                            </div>
+                        <?php else: ?>
+                            <div class="text-center py-5">
+                                <i class="bi bi-joystick display-4 text-muted mb-3"></i>
+                                <p class="text-muted">No games played yet</p>
+                                <a href="games.php" class="btn btn-primary">
+                                    <i class="bi bi-joystick me-1"></i> Play Games
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                
                 <!-- Level Progress -->
                 <div class="card shadow-sm mb-4">
                     <div class="card-body">

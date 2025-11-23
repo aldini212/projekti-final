@@ -3,33 +3,6 @@ session_start();
 require_once 'config/database.php';
 require_once 'includes/functions.php';
 
-// Database utility functions
-if (!function_exists('fetchOne')) {
-    function fetchOne($query, $params = []) {
-        global $pdo;
-        $stmt = $pdo->prepare($query);
-        $stmt->execute($params);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-}
-
-if (!function_exists('fetchAll')) {
-    function fetchAll($query, $params = []) {
-        global $pdo;
-        $stmt = $pdo->prepare($query);
-        $stmt->execute($params);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-}
-
-if (!function_exists('execute')) {
-    function execute($query, $params = []) {
-        global $pdo;
-        $stmt = $pdo->prepare($query);
-        return $stmt->execute($params);
-    }
-}
-
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
@@ -95,8 +68,7 @@ $gameTitle = "Lost World RPG";
 $pageTitle = "Lost World - $gameTitle";
 $userName = $user['username'];
 $userHouse = $user['house'] ?? 'Adventurer';
-// Use a placeholder avatar from a CDN
-$userAvatar = !empty($user['avatar']) ? "assets/uploads/avatars/{$user['avatar']}" : 'https://via.placeholder.com/200/333333/FFFFFF?text=AVATAR';
+$userAvatar = !empty($user['avatar']) ? "assets/uploads/avatars/{$user['avatar']}" : 'assets/images/default-avatar.png';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -209,84 +181,21 @@ $userAvatar = !empty($user['avatar']) ? "assets/uploads/avatars/{$user['avatar']
             margin: 0.25rem;
             min-width: 120px;
         }
-        
-        .game-card {
-            position: relative;
-            width: 100%;
-            height: 400px;
-            background: #1a1a1a;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .game-canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-        .game-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 10;
-        }
-        .lostworld-fullscreen {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            z-index: 9999 !important;
-            border-radius: 0 !important;
-        }
-        .xp-popup-center {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 1.5rem;
-            font-weight: bold;
-            z-index: 1000;
-            animation: floatUp 1.5s ease-out forwards;
-        }
-        @keyframes floatUp {
-            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-            20% { opacity: 1; transform: translate(-50%, -100%) scale(1.2); }
-            80% { opacity: 1; transform: translate(-50%, -150%) scale(1.2); }
-            100% { opacity: 0; transform: translate(-50%, -200%) scale(1); }
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="game-container">
-            <div class="game-header text-center mb-4">
+            <div class="game-header text-center">
                 <h1 class="game-title"><?= htmlspecialchars($gameTitle) ?></h1>
-                <div class="text-muted">Welcome, <?= htmlspecialchars($user['username'] ?? 'Adventurer') ?></div>
-                <button id="btnFullscreen" class="btn btn-sm btn-outline-light mt-2">
-                    <i class="bi bi-fullscreen"></i> Fullscreen
-                </button>
+                <div class="text-muted">Welcome back, <?= htmlspecialchars($userName) ?> of <?= htmlspecialchars($userHouse) ?></div>
             </div>
-
+            
             <div class="row">
                 <div class="col-md-8">
-                    <!-- Game Canvas -->
-                    <div id="lostWorldGameCard" class="game-card mb-4">
-                        <canvas id="lostWorldCanvas" class="game-canvas"></canvas>
-                        <div id="lostWorldOverlay" class="game-overlay d-flex flex-column justify-content-center align-items-center">
-                            <h2 class="text-white mb-4">Lost World</h2>
-                            <button id="btnStartRpg" class="btn btn-primary btn-lg">Start Adventure</button>
-                        </div>
+                    <!-- Game Area -->
+                    <div class="game-area mb-4" style="background: rgba(0, 0, 0, 0.3); height: 400px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                        <h3 class="text-center text-muted">Game World</h3>
                     </div>
                     
                     <!-- Stats -->
@@ -373,7 +282,6 @@ $userAvatar = !empty($user['avatar']) ? "assets/uploads/avatars/{$user['avatar']
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/GamingHub/projekti-final-1/assets/js/lost-world-new.js"></script>
     <script>
         function gameAction(action) {
             fetch('lost-world.php', {

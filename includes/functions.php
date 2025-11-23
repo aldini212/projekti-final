@@ -153,10 +153,100 @@ function getRecentActivities($limit = 10) {
 
 // Log activity
 function logActivity($userId, $type, $data = null, $gameId = null) {
+    global $pdo;
+    
+    $sql = "INSERT INTO activities (user_id, activity_type, activity_data, game_id) VALUES (?, ?, ?, ?)";
+    $stmt = $pdo->prepare($sql);
     $dataJson = $data ? json_encode($data) : null;
-    query("
-        INSERT INTO activities (user_id, activity_type, activity_data, game_id, created_at)
-        VALUES (?, ?, ?, ?, NOW())
-    ", [$userId, $type, $dataJson, $gameId]);
+    return $stmt->execute([$userId, $type, $dataJson, $gameId]);
+}
+
+/**
+ * Record game completion and award XP
+ * 
+ * @param int $userId User ID
+ * @param int $gameId Game ID
+ * @param int $score Score achieved
+ * @param int $timeSpent Time spent in seconds
+ * @return array Result with status and message
+ */
+function recordGameCompletion($userId, $gameId, $score, $timeSpent = 0) {
+    global $pdo;
+    
+    try {
+        // Start transaction
+        $pdo->beginTransaction();
+        
+        // Calculate XP based on score and time spent (customize this formula as needed)
+        $baseXp = min(1000, $score / 10); // Base XP is 10% of score, max 1000
+        $timeBonus = max(0, 300 - $timeSpent) / 6; // Bonus for faster completion, max 50 XP
+        $xpEarned = (int)round($baseXp + $timeBonus);
+        
+        // Insert or update score
+        $sql = "INSERT INTO scores (user_id, game_id, score, time_spent, xp_earned, created_at) 
+                VALUES (?, ?, ?, ?, ?, NOW())";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$userId, $gameId, $score, $timeSpent, $xpEarned]);
+        
+        // Update user's total XP and check for level up
+        $user = fetch("SELECT points, level FROM users WHERE id = ?", [$userId]);
+        $newPoints = $user['points'] + $xpEarned;
+        $newLevel = $user['level'];
+        $levelUp = false;
+        
+        // Check for level up (1000 XP per level, increasing by 10% each level)
+        $xpForNextLevel = $newLevel * 1000 * (1 + ($newLevel * 0.1));
+        if ($newPoints >= $xpForNextLevel) {
+            $newLevel++;
+            $levelUp = true;
+        }
+        
+        // Update user's XP and level
+        $updateSql = "UPDATE users SET points = ?, level = ? WHERE id = ?";
+        $pdo->prepare($updateSql)->execute([$newPoints, $newLevel, $userId]);
+        
+        // Update house XP
+        $pdo->prepare("
+            UPDATE users 
+            SET house_xp = COALESCE(house_xp, 0) + ? 
+            WHERE id = ?
+        ")->execute([$xpEarned, $userId]);
+        
+        // Commit transaction
+        $pdo->commit();
+        
+        // Log the activity
+        $activityData = [
+            'game_id' => $gameId,
+            'score' => $score,
+            'xp_earned' => $xpEarned,
+            'level_up' => $levelUp,
+            'new_level' => $levelUp ? $newLevel : null
+        ];
+        logActivity($userId, 'game_completed', $activityData, $gameId);
+        
+        // Return success with details
+        return [
+            'success' => true,
+            'xp_earned' => $xpEarned,
+            'new_points' => $newPoints,
+            'level_up' => $levelUp,
+            'new_level' => $newLevel,
+            'message' => $levelUp 
+                ? "Level up! You are now level $newLevel!" 
+                : "Game completed! You earned $xpEarned XP!"
+        ];
+        
+    } catch (Exception $e) {
+        // Rollback transaction on error
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        error_log("Error recording game completion: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'An error occurred while recording your score.'
+        ];
+    }
 }
 ?>

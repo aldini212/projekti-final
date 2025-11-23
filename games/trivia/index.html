@@ -3,105 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trivia Quiz - GameHub</title>
+    <title>Epic Trivia Challenge</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="game-container">
-        <div id="start-screen" class="screen">
-            <h1>Trivia Quiz</h1>
-            <p>Test your knowledge with this fun trivia game!</p>
-            <div class="options">
+    <div class="background-overlay"></div>
+    <div class="container">
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <div class="logo">Trivia Master</div>
+            <div class="settings-card">
+                <h2>Game Settings</h2>
                 <div class="form-group">
-                    <label for="category">Category:</label>
-                    <select id="category">
-                        <option value="any">Any Category</option>
+                    <label for="question-count">Number of Questions:</label>
+                    <input type="number" id="question-count" min="5" max="20" value="10">
+                </div>
+                <div class="form-group">
+                    <label>Category:</label>
+                    <select id="category" class="category-select">
                         <option value="9">General Knowledge</option>
-                        <option value="10">Entertainment: Books</option>
-                        <option value="11">Entertainment: Film</option>
-                        <option value="12">Entertainment: Music</option>
-                        <option value="17">Science & Nature</option>
-                        <option value="18">Science: Computers</option>
-                        <option value="19">Science: Mathematics</option>
-                        <option value="20">Mythology</option>
                         <option value="21">Sports</option>
                         <option value="22">Geography</option>
                         <option value="23">History</option>
-                        <option value="24">Politics</option>
-                        <option value="25">Art</option>
-                        <option value="26">Celebrities</option>
-                        <option value="27">Animals</option>
-                        <option value="28">Vehicles</option>
-                        <option value="29">Entertainment: Comics</option>
-                        <option value="30">Science: Gadgets</option>
-                        <option value="31">Entertainment: Japanese Anime & Manga</option>
-                        <option value="32">Entertainment: Cartoon & Animations</option>
+                        <option value="17">Science & Nature</option>
+                        <option value="18">Computers</option>
+                        <option value="11">Movies</option>
+                        <option value="12">Music</option>
+                        <option value="15">Video Games</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="difficulty">Difficulty:</label>
-                    <select id="difficulty">
-                        <option value="any">Any Difficulty</option>
-                        <option value="easy">Easy</option>
-                        <option value="medium">Medium</option>
-                        <option value="hard">Hard</option>
-                    </select>
+                    <label>Difficulty:</label>
+                    <div class="difficulty-buttons">
+                        <button class="difficulty-btn active" data-difficulty="easy">Easy</button>
+                        <button class="difficulty-btn" data-difficulty="medium">Medium</button>
+                        <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="amount">Number of Questions:</label>
-                    <input type="number" id="amount" min="5" max="20" value="10">
-                </div>
+                <button id="start-btn" class="btn start-btn">Start Game</button>
             </div>
-            <button id="start-btn" class="btn">Start Quiz</button>
         </div>
 
-        <div id="game-screen" class="screen hidden">
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
             <div class="game-header">
-                <div class="score">Score: <span id="score">0</span></div>
-                <div class="timer">Time: <span id="time">30</span>s</div>
-                <div class="question-count">Question <span id="current-question">1</span> of <span id="total-questions">10</span></div>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-label">Score</span>
+                        <span id="score" class="stat-value">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Time</span>
+                        <span id="time" class="stat-value">30</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Question</span>
+                        <span id="question-number" class="stat-value">1/10</span>
+                    </div>
+                </div>
             </div>
-            
             <div class="question-container">
-                <div id="category-display" class="category"></div>
-                <div id="question" class="question"></div>
+                <div id="category-display" class="category-display"></div>
+                <div id="question-text" class="question-text">Loading question...</div>
                 <div id="options" class="options"></div>
             </div>
-            
-            <div class="feedback" id="feedback"></div>
-            
-            <div class="controls">
-                <button id="next-btn" class="btn hidden">Next Question</button>
-                <button id="quit-btn" class="btn btn-outline">Quit</button>
+        </div>
+
+        <!-- End Screen -->
+        <div id="end-screen" class="screen">
+            <div class="results-card">
+                <div class="trophy-icon">🏆</div>
+                <h1>Game Over!</h1>
+                <div class="results">
+                    <div class="result-item">
+                        <span class="result-label">Your Score:</span>
+                        <span id="final-score" class="result-value">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Correct Answers:</span>
+                        <span id="correct-answers" class="result-value">0</span> / 
+                        <span id="total-questions" class="result-value">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Accuracy:</span>
+                        <span id="accuracy" class="result-value">0%</span>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button id="play-again-btn" class="btn">Play Again</button>
+                    <button id="back-to-menu-btn" class="btn btn-secondary">Back to Menu</button>
+                </div>
             </div>
         </div>
 
-        <div id="end-screen" class="screen hidden">
-            <h1>Quiz Complete!</h1>
-            <div class="results">
-                <div class="result-item">
-                    <span class="label">Final Score:</span>
-                    <span id="final-score" class="value">0</span>
-                </div>
-                <div class="result-item">
-                    <span class="label">Correct Answers:</span>
-                    <span id="correct-answers">0</span>/<span id="total-questions-final">0</span>
-                </div>
-                <div class="result-item">
-                    <span class="label">Accuracy:</span>
-                    <span id="accuracy">0%</span>
-                </div>
-                <div class="result-item">
-                    <span class="label">Time Taken:</span>
-                    <span id="time-taken">0</span> seconds
-                </div>
-            </div>
-            <div class="actions">
-                <button id="play-again-btn" class="btn">Play Again</button>
-                <button id="change-settings-btn" class="btn btn-outline">Change Settings</button>
-            </div>
+        <!-- Loading Spinner -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <div class="loading-text">Loading Questions...</div>
         </div>
     </div>
-    <script src="game.js"></script>
+
+    <script src="trivia-game.js"></script>
 </body>
 </html>
