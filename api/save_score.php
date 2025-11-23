@@ -49,6 +49,9 @@ try {
         $gameId = $gameData['id'];
     }
 
+    // Debug log
+    error_log("Saving score for user ID: $userId, game ID: $gameId, score: $score");
+    
     // Save the score
     $sql = "INSERT INTO scores (user_id, game_id, score, attempts, time_taken, correct_answers, total_questions, created_at) 
             VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";
@@ -63,6 +66,9 @@ try {
         $correct,
         $total
     ]);
+    
+    // Debug log the result of the score insertion
+    error_log("Score save " . ($success ? "successful" : "failed") . " for user ID: $userId");
 
     if ($success) {
         $response = [
@@ -84,12 +90,29 @@ try {
 echo json_encode($response);
 
 /**
- * Update user's total score and level
+ * Update user's total score, games played, and level
  */
 function updateUserStats($pdo, $userId, $score) {
-    // Update total score
-    $stmt = $pdo->prepare("UPDATE users SET points = points + ? WHERE id = ?");
+    // Debug log before update
+    error_log("Updating stats for user ID: $userId, adding score: $score");
+    
+    // Get current games_played for debugging
+    $stmt = $pdo->prepare("SELECT games_played FROM users WHERE id = ?");
+    $stmt->execute([$userId]);
+    $current = $stmt->fetch(PDO::FETCH_ASSOC);
+    error_log("Current games_played before update: " . ($current['games_played'] ?? 'N/A'));
+    
+    // Update total score and increment games_played
+    $stmt = $pdo->prepare("
+        UPDATE users 
+        SET points = points + ?,
+            games_played = IFNULL(games_played, 0) + 1
+        WHERE id = ?
+    ");
     $stmt->execute([$score, $userId]);
+    
+    // Debug log after update
+    error_log("Stats updated for user ID: $userId. Rows affected: " . $stmt->rowCount());
     
     // Get current points and level
     $stmt = $pdo->prepare("SELECT points, level FROM users WHERE id = ?");

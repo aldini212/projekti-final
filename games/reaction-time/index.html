@@ -3,49 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Testi i Shpejtësisë së Reagimit</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="style.css" rel="stylesheet">
+    <title>Reaction Time Master - Phase Challenge</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h2 class="h4 mb-0">Testi i Shpejtësisë së Reagimit</h2>
+    <div class="game-wrapper">
+        <!-- Header -->
+        <header class="game-header">
+            <div class="header-content">
+                <h1 class="game-title">⚡ Reaction Master</h1>
+                <p class="game-subtitle">Test Your Reflexes Across Multiple Phases</p>
+            </div>
+        </header>
+
+        <!-- Main Container -->
+        <main class="game-container">
+            <!-- Phase and Stats Section -->
+            <div class="stats-section">
+                <div class="stat-box">
+                    <div class="stat-icon">🎚️</div>
+                    <div class="stat-content">
+                        <span class="stat-label">Phase</span>
+                        <span class="stat-value" id="phase">1/5</span>
                     </div>
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between mb-3">
-                            <div>
-                                <strong>Raundi:</strong> <span id="roundLabel">0/5</span>
-                            </div>
-                            <div>
-                                <strong>I fundit:</strong> <span id="lastTime">-</span> ms
-                            </div>
-                            <div>
-                                <strong>Mesatarja:</strong> <span id="avgTime">-</span> ms
-                            </div>
-                        </div>
-                        
-                        <div id="gameArea" class="game-area mb-3">
-                            <!-- Target will appear here -->
-                        </div>
-                        
-                        <div id="resultText" class="text-center mb-3 fw-bold text-primary"></div>
-                        
-                        <div class="text-center">
-                            <button id="startButton" class="btn btn-primary btn-lg">
-                                Fillo Testin
-                            </button>
-                        </div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-content">
+                        <span class="stat-label">Last Time</span>
+                        <span class="stat-value" id="lastTime">-</span>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-content">
+                        <span class="stat-label">Average</span>
+                        <span class="stat-value" id="avgTime">-</span>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-content">
+                        <span class="stat-label">Best</span>
+                        <span class="stat-value" id="bestTime">-</span>
                     </div>
                 </div>
             </div>
-        </div>
+
+            <!-- Game Area with Disappearing Squares -->
+            <div class="game-area" id="gameArea">
+                <div class="difficulty-indicator" id="difficultyIndicator">
+                    <span>Click when square appears!</span>
+                </div>
+            </div>
+
+            <!-- Result Display -->
+            <div class="result-display" id="resultDisplay">
+                <p class="result-text" id="resultText"></p>
+            </div>
+
+            <!-- Game Over Modal -->
+            <div class="modal" id="modal">
+                <div class="modal-content">
+                    <h2 class="modal-title">🎊 Challenge Complete!</h2>
+                    <div class="modal-stats">
+                        <p>Final Average: <span id="final-avg">0</span> ms</p>
+                        <p>Best Time: <span id="final-best">0</span> ms</p>
+                        <p>Total Phases Completed: <span id="final-phases">5</span></p>
+                    </div>
+                    <div class="modal-buttons">
+                        <button class="btn btn-primary" id="playAgain">Play Again</button>
+                        <button class="btn btn-secondary" id="homeBtn" onclick="window.location.href='../../index.php'">Home</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls-section">
+                <button class="btn btn-primary" id="startButton">Start Challenge</button>
+                <button class="btn btn-secondary" id="menu" onclick="window.location.href='../../index.php'">Home</button>
+            </div>
+        </main>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="game.js"></script>
 </body>
 </html>

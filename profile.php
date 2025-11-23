@@ -27,6 +27,18 @@ try {
     // Start transaction for better performance with multiple queries
     $pdo->beginTransaction();
     
+    // Update games_played counter based on scores
+    $updateStmt = $pdo->prepare("
+        UPDATE users 
+        SET games_played = (
+            SELECT COUNT(DISTINCT game_id) 
+            FROM scores 
+            WHERE user_id = ?
+        )
+        WHERE id = ?
+    ");
+    $updateStmt->execute([$userId, $userId]);
+    
     // Get user info
     $user = fetch("
         SELECT u.*, up.full_name, up.bio, up.location, up.website, up.twitter, up.facebook, up.instagram
@@ -125,7 +137,10 @@ try {
                         <div class="text-center mb-4">
                             <?php if (!empty($user['house'])): 
                                 $house = strtolower($user['house']);
-                                $imgPath = "/GamingHub/projekti-final-1/assets/images/houses/{$house}.png";
+                                $imgPath = "assets/images/houses/" . strtolower($user['house']) . ".png";
+                                if (!file_exists($imgPath)) {
+                                    $imgPath = "assets/images/houses/default.png";
+                                }
                                 $houseDescriptions = [
                                     'Hipster' => 'Creativity & Style',
                                     'Speedster' => 'Speed & Agility',
@@ -152,9 +167,17 @@ try {
                         <!-- User Stats -->
                         <div class="border-top border-bottom py-3 mb-4">
                             <div class="row text-center">
-                                <div class="col-4">
-                                    <div class="h5 mb-1"><?= number_format($points) ?></div>
-                                    <div class="text-muted small">XP</div>
+                                <div class="col-6 col-sm-4 col-lg-3">
+                                    <div class="text-center">
+                                        <div class="h4 mb-1"><?= number_format($user['level']) ?></div>
+                                        <div class="small text-muted">Level</div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-sm-4 col-lg-3">
+                                    <div class="text-center">
+                                        <div class="h4 mb-1"><?= number_format($user['games_played'] ?? 0) ?></div>
+                                        <div class="small text-muted">Games Played</div>
+                                    </div>
                                 </div>
                                 <div class="col-4 border-start border-end">
                                     <div class="h5 mb-1"><?= $totalGamesPlayed = count($recentScores) + count($topScores) > 0 ? count($recentScores) + count($topScores) : 0 ?></div>
@@ -211,10 +234,46 @@ try {
             
             <!-- Main Content -->
             <div class="col-lg-9">
+                <!-- Profile Stats Card -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <div class="text-center p-3 bg-light rounded-3">
+                                    <div class="text-primary mb-2">
+                                        <i class="bi bi-trophy fs-1"></i>
+                                    </div>
+                                    <h4 class="h5 mb-1">Level <?= $level ?></h4>
+                                    <p class="text-muted small mb-0">Current Level</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center p-3 bg-light rounded-3">
+                                    <div class="text-success mb-2">
+                                        <i class="bi bi-star-fill fs-1"></i>
+                                    </div>
+                                    <h4 class="h5 mb-1"><?= number_format($points) ?></h4>
+                                    <p class="text-muted small mb-0">Total XP</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center p-3 bg-light rounded-3">
+                                    <div class="text-warning mb-2">
+                                        <i class="bi bi-joystick fs-1"></i>
+                                    </div>
+                                    <h4 class="h5 mb-1"><?= count($recentScores) ?></h4>
+                                    <p class="text-muted small mb-0">Games Played</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Recent Games Section -->
                 <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">Recent Games</h5>
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent Activity</h5>
+                        <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
                     </div>
                     <div class="card-body p-0">
                         <?php
@@ -283,74 +342,37 @@ try {
                         <?php endif; ?>
                     </div>
                 </div>
-                
-                <!-- Level Progress -->
-                <div class="card shadow-sm mb-4">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="card-title mb-0">Level Progress</h5>
-                            <span class="badge bg-primary">Level <?= $level ?></span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2 small text-muted">
-                            <span>0 XP</span>
-                            <span>Level <?= $level + 1 ?></span>
-                        </div>
-                        <div class="progress" style="height: 12px; border-radius: 6px;">
-                            <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" 
-                                 role="progressbar" 
-                                 style="width: <?= min(100, $progress) ?>%" 
-                                 aria-valuenow="<?= $progress ?>" 
-                                 aria-valuemin="0" 
-                                 aria-valuemax="100">
-                                <span class="visually-hidden"><?= $progress ?>% Complete</span>
-                            </div>
-                        </div>
-                        <div class="text-end mt-2">
-                            <small class="text-muted">
-                                <?= number_format($points) ?> / <?= number_format($nextLevelPoints) ?> XP
-                            </small>
-                        </div>
-                    </div>
-                </div>
-        
-        <!-- Tabs -->
-        <ul class="nav nav-tabs nav-fill mb-4" id="profileTabs" role="tablist">
+
+                <!-- Tabs Navigation -->
+                <ul class="nav nav-pills nav-fill mb-4" id="profileTabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active d-flex align-items-center justify-content-center" id="recent-scores-tab" data-bs-toggle="tab" data-bs-target="#recent-scores" type="button">
-                            <i class="bi bi-clock-history me-2"></i> Recent Games
+                        <button class="nav-link active" id="recent-scores-tab" data-bs-toggle="tab" data-bs-target="#recent-scores" type="button" role="tab">
+                            <i class="bi bi-clock-history me-2"></i> Recent Activity
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link d-flex align-items-center justify-content-center" id="top-scores-tab" data-bs-toggle="tab" data-bs-target="#top-scores" type="button">
-                            <i class="bi bi-trophy me-2"></i> Top Scores
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link d-flex align-items-center justify-content-center" id="achievements-tab" data-bs-toggle="tab" data-bs-target="#achievements" type="button">
+                        <button class="nav-link" id="achievements-tab" data-bs-toggle="tab" data-bs-target="#achievements" type="button" role="tab">
                             <i class="bi bi-award me-2"></i> Achievements
-                            <?php if (is_array($badges) && count($badges) > 0): ?>
-                                <span class="badge bg-primary rounded-pill ms-1"><?= count($badges) ?></span>
-                            <?php endif; ?>
                         </button>
                     </li>
                 </ul>
-        
-        <!-- Tab Content -->
-        <div class="tab-content position-relative" id="profileTabsContent">
-    <div id="loadingOverlay" class="position-absolute top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-flex justify-content-center align-items-center" style="z-index: 10; display: none !important;">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-    </div>
+
+                <div class="tab-content" id="profileTabContent">
+                    <div class="position-fixed top-50 start-50 translate-middle" id="loadingOverlay" style="z-index: 1050; display: none;">
+                        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    
                     <!-- Recent Scores -->
                     <div class="tab-pane fade show active" id="recent-scores" role="tabpanel">
                         <?php if (empty($recentScores)): ?>
                             <div class="text-center py-5 bg-light rounded-3">
-                                <i class="bi bi-joystick text-muted" style="font-size: 3rem;"></i>
-                                <h5 class="mt-3 text-muted">No Recent Games</h5>
-                                <p class="text-muted">You haven't played any games yet.</p>
+                                <i class="bi bi-clock-history text-muted" style="font-size: 3rem;"></i>
+                                <h5 class="mt-3 text-muted">No Recent Activity</h5>
+                                <p class="text-muted">Start playing games to see your activity here.</p>
                                 <a href="games.php" class="btn btn-primary px-4">
-                                    <i class="bi bi-joystick me-2"></i>Play a Game
+                                    <i class="bi bi-joystick me-2"></i>Play Now
                                 </a>
                             </div>
                         <?php else: ?>
@@ -403,88 +425,15 @@ try {
                         <?php endif; ?>
                     </div>
                     
-                    <!-- Top Scores -->
-                    <div class="tab-pane fade" id="top-scores" role="tabpanel">
-                        <?php if (empty($topScores)): ?>
-                            <div class="text-center py-5 bg-light rounded-3">
-                                <i class="bi bi-trophy text-muted" style="font-size: 3rem;"></i>
-                                <h5 class="mt-3 text-muted">No Top Scores</h5>
-                                <p class="text-muted">Play some games to appear on the leaderboard!</p>
-                                <a href="games.php" class="btn btn-primary px-4">
-                                    <i class="bi bi-joystick me-2"></i>Play Now
-                                </a>
-                            </div>
-                        <?php else: ?>
-                            <div class="card shadow-sm">
-                                <div class="card-body p-0">
-                                    <div class="table-responsive">
-                                        <table class="table table-hover align-middle mb-0">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th class="ps-4">#</th>
-                                                    <th>Game</th>
-                                                    <th>Score</th>
-                                                    <th>Date</th>
-                                                    <th class="text-end pe-4">Position</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php foreach ($topScores as $index => $score): ?>
-                                                    <tr>
-                                                        <td class="ps-4">
-                                                            <?php if ($index === 0): ?>
-                                                                <span class="badge bg-warning text-dark">1st</span>
-                                                            <?php elseif ($index === 1): ?>
-                                                                <span class="badge bg-secondary">2nd</span>
-                                                            <?php elseif ($index === 2): ?>
-                                                                <span class="badge bg-danger">3rd</span>
-                                                            <?php else: ?>
-                                                                <span class="badge bg-light text-dark">#<?= $index + 1 ?></span>
-                                                            <?php endif; ?>
-                                                        </td>
-                                                        <td>
-                                                            <div class="d-flex align-items-center">
-                                                                <div class="flex-shrink-0 me-3">
-                                                                    <i class="bi bi-joystack fs-4 text-primary"></i>
-                                                                </div>
-                                                                <div>
-                                                                    <h6 class="mb-0"><?= htmlspecialchars($score['game_name'] ?? 'Unknown Game') ?></h6>
-                                                                    <small class="text-muted"><?= date('M j, Y', strtotime($score['created_at'])) ?></small>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <span class="badge bg-primary rounded-pill px-3 py-2">
-                                                                <?= number_format($score['score'] ?? 0) ?> pts
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <small class="text-muted"><?= date('M j, Y', strtotime($score['created_at'])) ?></small>
-                                                        </td>
-                                                        <td class="text-end pe-4">
-                                                            <button class="btn btn-sm btn-outline-primary">
-                                                                <i class="bi bi-trophy me-1"></i>View Leaderboard
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                    
                     <!-- Achievements -->
                     <div class="tab-pane fade" id="achievements" role="tabpanel">
                         <?php if (empty($badges)): ?>
                             <div class="text-center py-5 bg-light rounded-3">
                                 <i class="bi bi-award text-muted" style="font-size: 3rem;"></i>
                                 <h5 class="mt-3 text-muted">No Achievements Yet</h5>
-                                <p class="text-muted">Complete challenges and earn badges to show off your skills!</p>
+                                <p class="text-muted">Keep playing to unlock achievements and earn badges!</p>
                                 <a href="games.php" class="btn btn-primary px-4">
-                                    <i class="bi bi-joystick me-2"></i>Start Playing
+                                    <i class="bi bi-joystick me-2"></i>Play Games
                                 </a>
                             </div>
                         <?php else: ?>

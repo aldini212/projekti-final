@@ -3,17 +3,9 @@ session_start();
 require_once 'config/database.php';
 require_once 'includes/functions.php';
 
+
 // Static array of games with their details and images
 $games = [
-    [
-        'id' => 6,
-        'name' => 'Lost World',
-        'slug' => 'lost-world',
-        'description' => 'Embark on an epic adventure in a mysterious world!',
-        'image' => 'assets/images/lost-world-preview.jpg',
-        'player_count' => 75,
-        'category' => 'Adventure'
-    ],
     [
         'id' => 1,
         'name' => 'Trivia Game',
@@ -67,15 +59,6 @@ $games = [
         'image' => 'assets/images/word-scramble.jpg',
         'player_count' => 75,
         'category' => 'Word'
-    ],
-    [
-        'id' => 7,
-        'name' => 'Lost World',
-        'slug' => 'lost-world.php',
-        'description' => 'Embark on an adventure in the mysterious lost world!',
-        'image' => 'assets/images/gaming-bg.jpg',
-        'player_count' => 65,
-        'category' => 'Adventure'
     ]
 ];
 ?>
@@ -820,28 +803,35 @@ $games = [
             margin: 0;
             color: rgba(255, 255, 255, 0.7);
         }
+        
+        /* Pulse Animation */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(108, 92, 231, 0.7);
+            }
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 15px rgba(108, 92, 231, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(108, 92, 231, 0);
+            }
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+            transition: all 0.3s ease;
+        }
+        
+        .pulse-animation:hover {
+            animation: none;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
-    <!-- Header with Avatar -->
-    <header class="header-with-avatar py-5">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-8">
-                    <h1 class="display-4 fw-bold text-white mb-3">Welcome to GameHub</h1>
-                    <p class="lead text-white-50 mb-4">Play amazing games and compete with players worldwide</p>
-                    <a href="#games" class="btn btn-primary btn-lg me-3">Explore Games</a>
-                    <a href="#leaderboard" class="btn btn-outline-light btn-lg">View Leaderboard</a>
-                </div>
-                <div class="col-lg-4 text-center">
-                    <div class="avatar-container">
-                        <img src="assets/images/avatar.png" alt="Your Avatar" class="avatar">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container">
@@ -866,11 +856,19 @@ $games = [
                 </ul>
                 <div class="d-flex">
                     <?php if (isset($_SESSION['user_id'])): ?>
-                        <a href="profile.php" class="btn btn-outline-light me-2">My Profile</a>
-                        <a href="logout.php" class="btn btn-primary">Logout</a>
+                        <a href="profile.php" class="btn btn-outline-light me-2">
+                            <i class="bi bi-person-circle me-1"></i> My Profile
+                        </a>
+                        <a href="logout.php" class="btn btn-primary">
+                            <i class="bi bi-box-arrow-right me-1"></i> Logout
+                        </a>
                     <?php else: ?>
-                        <a href="login.php" class="btn btn-outline-light me-2">Login</a>
-                        <a href="register.php" class="btn btn-primary">Sign Up</a>
+                        <a href="login.php" class="btn btn-outline-light me-2">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                        </a>
+                        <a href="register.php" class="btn btn-primary">
+                            <i class="bi bi-person-plus me-1"></i> Sign Up
+                        </a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -878,23 +876,38 @@ $games = [
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero" id="home">
-        <div class="container">
-            <div class="row justify-content-center">
+    <section class="hero py-5 position-relative overflow-hidden" id="home" style="padding-top: 100px !important; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);">
+        <div class="container position-relative">
+            <div class="row justify-content-center text-center">
                 <div class="col-lg-8">
-                    <h1>Welcome to GameHub</h1>
-                    <p class="lead">Play exciting mini-games, compete with friends, and climb the leaderboards!</p>
+                    <h1 class="display-4 fw-bold mb-4 text-white">Welcome to <span class="text-primary">GameHub</span></h1>
+                    <p class="lead mb-5 text-white-50">Immerse yourself in our collection of exciting mini-games. Compete, have fun, and reach the top of the leaderboards!</p>
                     <div class="d-flex justify-content-center gap-3">
-                        <a href="#games" class="btn btn-primary btn-lg">Play Now</a>
-                        <a href="#features" class="btn btn-outline-light btn-lg">Learn More</a>
+                        <a href="#games" class="btn btn-primary btn-lg px-4 py-3 fw-bold">
+                            <i class="bi bi-joystick me-2"></i> Play Now
+                        </a>
+                        <a href="#features" class="btn btn-outline-light btn-lg px-4 py-3 fw-bold">
+                            <i class="bi bi-trophy me-2"></i> View Leaderboard
+                        </a>
                     </div>
                 </div>
+            </div>
+            
+            <!-- Custom Animated Image -->
+            <div class="mt-5 text-center" id="custom-animation">
+                <img src="assets/images/game-controller.gif" alt="Game Controller" style="max-width: 150px; height: auto; border-radius: 50%; border: 3px solid rgba(255,255,255,0.1); box-shadow: 0 0 30px rgba(108, 92, 231, 0.5);" class="pulse-animation">
+            </div>
+            
+            <!-- Decorative elements -->
+            <div class="position-absolute top-0 start-0 w-100 h-100 overflow-hidden" style="pointer-events: none; z-index: 0;">
+                <div class="position-absolute" style="width: 300px; height: 300px; background: linear-gradient(180deg, rgba(108, 92, 231, 0.1) 0%, rgba(0,0,0,0) 100%); border-radius: 50%; top: -150px; left: -100px;"></div>
+                <div class="position-absolute" style="width: 500px; height: 500px; background: linear-gradient(180deg, rgba(162, 155, 254, 0.1) 0%, rgba(0,0,0,0) 100%); border-radius: 50%; bottom: -250px; right: -200px;"></div>
             </div>
         </div>
     </section>
 
     <!-- Games Section -->
-    <section class="py-5 bg-light" id="games" style="margin-top: -50px; position: relative; z-index: 2;">
+    <section class="py-5" id="games" style="position: relative; z-index: 2; background: #0a0a1a; background: linear-gradient(180deg, #0f0c29 0%, #1a1a2e 100%);">
         <div class="container">
             <h2 class="section-title">Our Games</h2>
             <div class="row g-4">
@@ -942,7 +955,7 @@ $games = [
                             <i class="bi bi-trophy fs-3"></i>
                         </div>
                         <h4>Compete & Win</h4>
-                        <p class="text-muted">Climb the leaderboards and compete with players from around the world to win amazing prizes.</p>
+                        <p class="text-white">Climb the leaderboards and compete with players from around the world to win amazing prizes.</p>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -951,7 +964,7 @@ $games = [
                             <i class="bi bi-people fs-3"></i>
                         </div>
                         <h4>Play with Friends</h4>
-                        <p class="text-muted">Challenge your friends or team up with them in multiplayer games.</p>
+                        <p class="text-white">Challenge your friends or team up with them in multiplayer games.</p>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -960,7 +973,7 @@ $games = [
                             <i class="bi bi-controller fs-3"></i>
                         </div>
                         <h4>Variety of Games</h4>
-                        <p class="text-muted">Enjoy a wide selection of games across different genres and difficulty levels.</p>
+                        <p class="text-white">Enjoy a wide selection of games across different genres and difficulty levels.</p>
                     </div>
                 </div>
             </div>
@@ -995,6 +1008,123 @@ $games = [
             </div>
         </div>
     </section>
+    <!-- Houses Section -->
+<section class="py-5" style="background: linear-gradient(135deg, #0f0c29, #1a1a2e);">
+    <div class="container">
+        <div class="row g-4">
+            <?php
+            $userHouse = isset($_SESSION['user_house']) ? $_SESSION['user_house'] : '';
+            $houses = [
+                'Hipsters' => [
+                    'color' => '#9b59b6',
+                    'icon' => 'bi-joystick'
+                ],
+                'Speeders' => [
+                    'color' => '#e74c3c',
+                    'icon' => 'bi-lightning-charge'
+                ],
+                'Engineers' => [
+                    'color' => '#2ecc71',
+                    'icon' => 'bi-gear'
+                ],
+                'Shadows' => [
+                    'color' => '#3498db',
+                    'icon' => 'bi-moon'
+                ]
+            ];
+
+            foreach ($houses as $name => $data):
+                $isActive = ($userHouse === $name) ? 'active-house' : '';
+            ?>
+                <div class="col-md-3 col-6">
+                    <div class="house-card <?php echo $isActive; ?>" 
+                         style="--house-color: <?php echo $data['color']; ?>"
+                         data-house="<?php echo $name; ?>">
+                        <i class="bi <?php echo $data['icon']; ?>"></i>
+                        <h4><?php echo $name; ?></h4>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+
+<style>
+.house-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid var(--house-color);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    color: white;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    height: 100%;
+}
+
+.house-card:hover, .house-card.active-house {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.house-card.active-house {
+    animation: pulse 2s infinite;
+    box-shadow: 0 0 20px var(--house-color);
+}
+
+.house-card i {
+    font-size: 2.5rem;
+    color: var(--house-color);
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+}
+
+.house-card:hover i, .house-card.active-house i {
+    transform: scale(1.2);
+}
+
+.house-card h4 {
+    margin: 0;
+    font-weight: 600;
+    color: white;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(var(--house-rgb), 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(var(--house-rgb), 0); }
+    100% { box-shadow: 0 0 0 0 rgba(var(--house-rgb), 0); }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click handler for house selection
+    document.querySelectorAll('.house-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const house = this.dataset.house;
+            fetch('update_house.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'house=' + encodeURIComponent(house)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove active class from all cards
+                    document.querySelectorAll('.house-card').forEach(c => {
+                        c.classList.remove('active-house');
+                    });
+                    // Add active class to clicked card
+                    this.classList.add('active-house');
+                }
+            });
+        });
+    });
+});
+</script>
 
     <!-- Footer -->
     <footer class="bg-dark text-white py-4">
@@ -1002,7 +1132,7 @@ $games = [
             <div class="row">
                 <div class="col-md-6">
                     <h5>GameHub</h5>
-                    <p class="text-muted">Your ultimate destination for fun and competitive gaming.</p>
+                    <p class="text-white">Your ultimate destination for fun and competitive gaming.</p>
                     <div class="d-flex gap-3">
                         <a href="#" class="text-white"><i class="bi bi-facebook"></i></a>
                         <a href="#" class="text-white"><i class="bi bi-twitter"></i></a>
@@ -1013,24 +1143,24 @@ $games = [
                 <div class="col-md-3">
                     <h5>Quick Links</h5>
                     <ul class="list-unstyled">
-                        <li><a href="#home" class="text-muted text-decoration-none">Home</a></li>
-                        <li><a href="#games" class="text-muted text-decoration-none">Games</a></li>
-                        <li><a href="leaderboard.php" class="text-muted text-decoration-none">Leaderboard</a></li>
-                        <li><a href="about.php" class="text-muted text-decoration-none">About</a></li>
-                        <li><a href="contact.php" class="text-muted text-decoration-none">Contact</a></li>
+                        <li><a href="#home" class="text-white text-decoration-none">Home</a></li>
+                        <li><a href="#games" class="text-white text-decoration-none">Games</a></li>
+                        <li><a href="leaderboard.php" class="text-white text-decoration-none">Leaderboard</a></li>
+                        <li><a href="about.php" class="text-white text-decoration-none">About</a></li>
+                        <li><a href="contact.php" class="text-white text-decoration-none">Contact</a></li>
                     </ul>
                 </div>
                 <div class="col-md-3">
                     <h5>Legal</h5>
                     <ul class="list-unstyled">
-                        <li><a href="privacy.php" class="text-muted text-decoration-none">Privacy Policy</a></li>
-                        <li><a href="terms.php" class="text-muted text-decoration-none">Terms of Service</a></li>
-                        <li><a href="cookies.php" class="text-muted text-decoration-none">Cookie Policy</a></li>
+                        <li><a href="privacy.php" class="text-white text-decoration-none">Privacy Policy</a></li>
+                        <li><a href="terms.php" class="text-white text-decoration-none">Terms of Service</a></li>
+                        <li><a href="cookies.php" class="text-white text-decoration-none">Cookie Policy</a></li>
                     </ul>
                 </div>
             </div>
             <hr class="my-4">
-            <div class="text-center text-muted">
+            <div class="text-center text-white">
                 <p class="mb-0">&copy; <?php echo date('Y'); ?> GameHub. All rights reserved.</p>
             </div>
         </div>
@@ -1065,6 +1195,7 @@ $games = [
                 });
             });
         });
+        
     </script>
 </body>
 </html>

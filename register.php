@@ -602,7 +602,7 @@ if (session_status() === PHP_SESSION_NONE) {
                                             <input type="radio" class="btn-check" name="house" id="hipsters" value="Hipsters" required 
                                                 <?php echo ($_POST['house'] ?? '') === 'Hipsters' ? 'checked' : ''; ?>>
                                             <label class="w-100 btn d-flex flex-column align-items-center house-option" for="hipsters" style="border: none;">
-                                                <img src="/GamingHub/projekti-final-1/assets/images/houses/hipsters.png" alt="Hipsters" class="img-fluid" style="width: 60px; height: 60px; object-fit: contain;">
+                                                <img src="assets/images/houses/hipsters.png" alt="Hipsters" class="img-fluid" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.src='assets/images/houses/default.png';">
                                                 <span class="mt-1">Hipsters</span>
                                             </label>
                                         </div>
@@ -610,7 +610,7 @@ if (session_status() === PHP_SESSION_NONE) {
                                             <input type="radio" class="btn-check" name="house" id="speeders" value="Speeders" 
                                                 <?php echo ($_POST['house'] ?? '') === 'Speeders' ? 'checked' : ''; ?>>
                                             <label class="w-100 btn d-flex flex-column align-items-center house-option" for="speeders" style="border: none;">
-                                                <img src="/GamingHub/projekti-final-1/assets/images/houses/speeders.png" alt="Speeders" class="img-fluid" style="width: 60px; height: 60px; object-fit: contain;">
+                                                <img src="assets/images/houses/speeders.png" alt="Speeders" class="img-fluid" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.src='assets/images/houses/default.png';">
                                                 <span class="mt-1">Speeders</span>
                                             </label>
                                         </div>
@@ -618,7 +618,7 @@ if (session_status() === PHP_SESSION_NONE) {
                                             <input type="radio" class="btn-check" name="house" id="engineers" value="Engineers" 
                                                 <?php echo ($_POST['house'] ?? '') === 'Engineers' ? 'checked' : ''; ?>>
                                             <label class="w-100 btn d-flex flex-column align-items-center house-option" for="engineers" style="border: none;">
-                                                <img src="/GamingHub/projekti-final-1/assets/images/houses/engineers.png" alt="Engineers" class="img-fluid" style="width: 60px; height: 60px; object-fit: contain;">
+                                                <img src="assets/images/houses/engineers.png" alt="Engineers" class="img-fluid" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.src='assets/images/houses/default.png';">
                                                 <span class="mt-1">Engineers</span>
                                             </label>
                                         </div>
@@ -626,7 +626,7 @@ if (session_status() === PHP_SESSION_NONE) {
                                             <input type="radio" class="btn-check" name="house" id="shadows" value="Shadows" 
                                                 <?php echo ($_POST['house'] ?? '') === 'Shadows' ? 'checked' : ''; ?>>
                                             <label class="w-100 btn d-flex flex-column align-items-center house-option" for="shadows" style="border: none;">
-                                                <img src="/GamingHub/projekti-final-1/assets/images/houses/shadows.png" alt="Shadows" class="img-fluid" style="width: 60px; height: 60px; object-fit: contain;">
+                                                <img src="assets/images/houses/shadows.png" alt="Shadows" class="img-fluid" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.src='assets/images/houses/default.png';">
                                                 <span class="mt-1">Shadows</span>
                                             </label>
                                         </div>

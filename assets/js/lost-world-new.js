@@ -10,6 +10,7 @@ const game = {
     // Game state
     running: false,
     gameOver: false,
+    scoreSaved: false,
     gameTime: 0,
     lastTime: 0,
     
@@ -36,9 +37,33 @@ const game = {
         ' ': false
     },
     
+    // Save score to server
+    saveScore(score) {
+        fetch('/projekti-final-1/api/save_score.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                game: 'lost-world',
+                score: score,
+                time: Math.floor(this.gameTime / 1000) // Convert to seconds
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Score saved:', data);
+            this.scoreSaved = true;
+        })
+        .catch(error => {
+            console.error('Error saving score:', error);
+        });
+    },
+    
     // Initialize the game
     init() {
         console.log('Initializing game...');
+        this.scoreSaved = false;
         
         // Get canvas and context
         this.canvas = document.getElementById('lostWorldCanvas');
@@ -124,6 +149,12 @@ const game = {
     
     // Update game state
     update(deltaTime) {
+        if (this.gameOver) {
+            if (!this.scoreSaved) {
+                this.saveScore(1000); // Example score, replace with actual score logic
+            }
+            return;
+        }
         const hero = this.hero;
         
         // Update hero position

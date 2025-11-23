@@ -189,7 +189,7 @@ if (session_status() === PHP_SESSION_NONE) {
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?= $activeNav === 'games' ? 'active' : '' ?>" href="games.php">
+                        <a class="nav-link <?= $activeNav === 'games' ? 'active' : '' ?>" href="index.php">
                             <i class="bi bi-joystick me-1"></i>Games
                         </a>
                     </li>
